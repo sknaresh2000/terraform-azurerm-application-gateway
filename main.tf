@@ -104,11 +104,11 @@ resource "azurerm_application_gateway" "app-gateway" {
     for_each = var.http_listeners
     content {
       name                           = http_listener.key
-      frontend_ip_configuration_name = http_listener.value.frontend_ip_configuration_name
-      frontend_port_name             = http_listener.value.frontend_port_name
-      protocol                       = http_listener.value.protocol
-      ssl_certificate_name           = http_listener.value.ssl_certificate_name
-      host_name                      = http_listener.value.host_name
+      frontend_ip_configuration_name = var.http_listeners[http_listener.key].frontend_ip_configuration_name
+      frontend_port_name             = var.http_listeners[http_listener.key].frontend_port_name
+      protocol                       = var.http_listeners[http_listener.key].protocol
+      ssl_certificate_name           = var.http_listeners[http_listener.key].ssl_certificate_name
+      host_name                      = var.http_listeners[http_listener.key].host_name
     }
   }
 
