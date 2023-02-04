@@ -195,13 +195,13 @@ variable "pip_diag_logs" {
 variable "eventhub_authorization_rule_id" {
   description = "Event Hub Authorization Rule id for diagnostic settings"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "storage_account_id" {
   description = "Storage account id for diagnostic settings"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "log_analytics_workspace_id" {
