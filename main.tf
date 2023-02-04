@@ -109,6 +109,7 @@ resource "azurerm_application_gateway" "app-gateway" {
       protocol                       = var.http_listeners[http_listener.key].protocol
       ssl_certificate_name           = var.http_listeners[http_listener.key].ssl_certificate_name
       host_name                      = var.http_listeners[http_listener.key].host_name
+      host_names                     = var.http_listeners[http_listener.key].host_names
     }
   }
 
