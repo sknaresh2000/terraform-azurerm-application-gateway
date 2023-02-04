@@ -110,7 +110,7 @@ variable "http_listeners" {
     frontend_port_name             = string
     protocol                       = string
     host_name                      = string
-    host_name                      = list(string)
+    host_names                     = list(string)
     ssl_certificate_name           = string
   }))
   description = "The listener details for this app gateway"
