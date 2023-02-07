@@ -153,6 +153,8 @@ variable "routing_rules" {
     backend_http_settings_name  = string
     redirect_configuration_name = string
     priority                    = number
+    url_path_map_name           = string
+    rewrite_rule_set_name       = string
   }))
   description = "Routing rules that determines the traffic destination"
 }
