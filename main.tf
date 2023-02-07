@@ -195,7 +195,7 @@ resource "azurerm_application_gateway" "app-gateway" {
   }
 
   dynamic "rewrite_rule_set" {
-    for_each = var.rewrite_rule_set
+    for_each = var.rewrite_rule_sets
     content {
       name = rewrite_rule_set.key
       dynamic "rewrite_rule" {
@@ -230,27 +230,33 @@ resource "azurerm_application_gateway" "app-gateway" {
       }
     }
   }
-  waf_configuration {
-    enabled          = var.enable_waf
-    firewall_mode    = var.mode
-    rule_set_type    = var.rule_type
-    rule_set_version = var.version
-    dynamic "exclusion" {
-      for_each = var.waf_exclusions
-      content {
-        match_variable          = exclusion.value.match_variable
-        selector_match_operator = exclusion.value.selector_match_operator
-        selector                = exclusion.value.selector
+
+  dynamic "waf_configuration" {
+    for_each = var.inbuilt_waf_configs.enabled ? [1] : []
+    content {
+      enabled          = var.inbuilt_waf_configs.enabled
+      firewall_mode    = var.inbuilt_waf_configs.firewall_mode
+      rule_set_type    = var.inbuilt_waf_configs.rule_set_type
+      rule_set_version = var.inbuilt_waf_configs.rule_set_version
+      dynamic "exclusion" {
+        for_each = var.inbuilt_waf_configs.exclusions
+        content {
+          match_variable          = exclusion.value.match_variable
+          selector_match_operator = exclusion.value.selector_match_operator
+          selector                = exclusion.value.selector
+        }
       }
-    }
-    dynamic "disabled_rule_group" {
-      for_each = var.waf_disabled_rule_groups
-      content {
-        rule_group_name = disabled_rule_group.value.rule_group_name
-        rules           = disabled_rule_group.value.rules
+      dynamic "disabled_rule_group" {
+        for_each = var.inbuilt_waf_configs.disabled_rule_groups
+        content {
+          rule_group_name = disabled_rule_group.value.rule_group_name
+          rules           = disabled_rule_group.value.rules
+        }
       }
+
     }
   }
+
 }
 
 resource "azurerm_monitor_diagnostic_setting" "public-ip-diag" {
