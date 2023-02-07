@@ -186,11 +186,12 @@ resource "azurerm_application_gateway" "app-gateway" {
       dynamic "path_rule" {
         for_each = length(url_path_map.value.path_rule) > 0 ? url_path_map.value.path_rule : {}
         content {
-          name                       = path_rule.key
-          paths                      = path_rule.value.paths
-          backend_address_pool_name  = path_rule.value.backend_address_pool_name
-          backend_http_settings_name = path_rule.value.backend_http_settings_name
-          rewrite_rule_set_name      = path_rule.value.rewrite_rule_set_name
+          name                        = path_rule.key
+          paths                       = path_rule.value.paths
+          backend_address_pool_name   = path_rule.value.backend_address_pool_name
+          backend_http_settings_name  = path_rule.value.backend_http_settings_name
+          rewrite_rule_set_name       = path_rule.value.rewrite_rule_set_name
+          redirect_configuration_name = path_rule.value.redirect_configuration_name
         }
       }
     }

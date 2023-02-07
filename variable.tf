@@ -239,10 +239,11 @@ variable "url_path_map" {
     default_redirect_configuration_name = string
     default_rewrite_rule_set_name       = string
     path_rule = map(object({
-      paths                      = list(string)
-      backend_http_settings_name = string
-      backend_address_pool_name  = string
-      rewrite_rule_set_name      = string
+      paths                       = list(string)
+      backend_http_settings_name  = string
+      backend_address_pool_name   = string
+      rewrite_rule_set_name       = string
+      redirect_configuration_name = string
     }))
   }))
   default     = {}
