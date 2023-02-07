@@ -221,3 +221,79 @@ variable "agw_diag_name" {
   type        = string
 }
 
+variable "trusted_root_certificates" {
+  type = map(object({
+    data               = string
+    kv_trusted_cert_id = string
+  }))
+  default     = {}
+  description = "Trusted CA Cert details if its not a well known CA"
+}
+
+variable "url_path_map" {
+  type = map(object({
+    default_backend_address_pool_name   = string
+    default_backend_http_settings_name  = string
+    default_redirect_configuration_name = string
+    default_rewrite_rule_set_name       = string
+    path_rule = map(object({
+      paths                      = list(string)
+      backend_http_settings_name = string
+      backend_address_pool_name  = string
+      rewrite_rule_set_name      = string
+    }))
+  }))
+  default     = {}
+  description = "URL Path based Routing details. This is required if routing rule type is set as PathBasedRouting"
+}
+
+variable "rewrite_rule_sets" {
+  type = map(object({
+    rewrite_rule = map(object({
+      rule_sequence = number
+      condition = list(object({
+        variable    = string
+        pattern     = string
+        ignore_case = string
+        negate      = string
+      }))
+      request_header_configuration = list(object({
+        header_name  = string
+        header_value = string
+      }))
+      response_header_configuration = list(object({
+        header_name  = string
+        header_value = string
+      }))
+    }))
+  }))
+  default     = {}
+  description = "Rewrite rule set details"
+}
+
+variable "inbuilt_waf_configs" {
+  type = object({
+    enabled          = bool
+    firewall_mode    = string
+    rule_set_type    = string
+    rule_set_version = string
+    exclusions = list(object({
+      match_variable          = string
+      selector_match_operator = string
+      selector                = string
+    }))
+    disabled_rule_groups = list(object({
+      rule_group_name = string
+      rules           = list(string)
+    }))
+  })
+  default = {
+    enabled              = false
+    firewall_mode        = null
+    rule_set_type        = null
+    rule_set_version     = null
+    exclusions           = []
+    disabled_rule_groups = []
+  }
+  description = "Details of WAF that can be configured along with application gateway"
+}

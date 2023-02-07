@@ -163,6 +163,94 @@ resource "azurerm_application_gateway" "app-gateway" {
       key_vault_secret_id = lookup(ssl_certificate.value, "key_vault_secret_id", null)
     }
   }
+
+  dynamic "trusted_root_certificate" {
+    for_each = var.trusted_root_certificates
+    content {
+      name                = trusted_root_certificate.key
+      data                = trusted_root_certificate.value.kv_trusted_cert_id == null ? trusted_root_certificate.value.data : null
+      key_vault_secret_id = lookup(trusted_root_certificate.value, "kv_trusted_cert_id", null)
+    }
+  }
+
+  dynamic "url_path_map" {
+    for_each = var.url_path_map
+    content {
+      name                                = url_path_map.key
+      default_backend_address_pool_name   = url_path_map.value.default_backend_address_pool_name
+      default_backend_http_settings_name  = url_path_map.value.default_backend_http_settings_name
+      default_redirect_configuration_name = url_path_map.value.default_redirect_configuration_name
+      default_rewrite_rule_set_name       = url_path_map.value.default_rewrite_rule_set_name
+      dynamic "path_rule" {
+        for_each = length(url_path_map.value.path_rule) > 0 ? url_path_map.value.path_rule : {}
+        content {
+          name                       = path_rule.key
+          paths                      = path_rule.value.paths
+          backend_address_pool_name  = path_rule.value.backend_address_pool_name
+          backend_http_settings_name = path_rule.value.backend_http_settings_name
+          rewrite_rule_set_name      = path_rule.value.rewrite_rule_set_name
+        }
+      }
+    }
+  }
+
+  dynamic "rewrite_rule_set" {
+    for_each = var.rewrite_rule_set
+    content {
+      name = rewrite_rule_set.key
+      dynamic "rewrite_rule" {
+        for_each = length(rewrite_rule_set.value.rewrite_rule) > 0 ? rewrite_rule_set.value.rewrite_rule : {}
+        content {
+          name          = rewrite_rule.key
+          rule_sequence = rewrite_rule.value.rule_sequence
+          dynamic "condition" {
+            for_each = length(rewrite_rule.value.condition) > 0 ? rewrite_rule.value.condition : []
+            content {
+              variable    = condition.value.variable
+              pattern     = condition.value.pattern
+              ignore_case = condition.value.ignore_case
+              negate      = condition.value.negate
+            }
+          }
+          dynamic "request_header_configuration" {
+            for_each = length(rewrite_rule.value.request_header_configuration) > 0 ? rewrite_rule.value.request_header_configuration : []
+            content {
+              header_name  = request_header_configuration.value.header_name
+              header_value = request_header_configuration.value.header_value
+            }
+          }
+          dynamic "response_header_configuration" {
+            for_each = length(rewrite_rule.value.response_header_configuration) > 0 ? rewrite_rule.value.response_header_configuration : []
+            content {
+              header_name  = response_header_configuration.value.header_name
+              header_value = response_header_configuration.value.header_value
+            }
+          }
+        }
+      }
+    }
+  }
+  waf_configuration {
+    enabled          = var.enable_waf
+    firewall_mode    = var.mode
+    rule_set_type    = var.rule_type
+    rule_set_version = var.version
+    dynamic "exclusion" {
+      for_each = var.waf_exclusions
+      content {
+        match_variable          = exclusion.value.match_variable
+        selector_match_operator = exclusion.value.selector_match_operator
+        selector                = exclusion.value.selector
+      }
+    }
+    dynamic "disabled_rule_group" {
+      for_each = var.waf_disabled_rule_groups
+      content {
+        rule_group_name = disabled_rule_group.value.rule_group_name
+        rules           = disabled_rule_group.value.rules
+      }
+    }
+  }
 }
 
 resource "azurerm_monitor_diagnostic_setting" "public-ip-diag" {
